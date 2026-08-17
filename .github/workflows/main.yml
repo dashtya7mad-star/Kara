@@ -1,4 +1,4 @@
-name: Scheduled Downloader Bot
+name: Scheduled Restart Bot
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-downloader:
+  run-restart:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,16 +18,14 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Install Playwright
       run: |
         python -m pip install --upgrade pip
-        pip install requests
+        pip install playwright
+        playwright install chromium
 
-    - name: Run script
+    - name: Run Restart Script
+      env:
+        PELLA_USERNAME: ${{ secrets.PELLA_USERNAME }}
+        PELLA_PASSWORD: ${{ secrets.PELLA_PASSWORD }}
       run: python bot.py
-
-    - name: Save downloaded file
-      uses: actions/upload-artifact@v3
-      with:
-        name: downloaded-data
-        path: downloaded_file.zip
