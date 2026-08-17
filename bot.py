@@ -1,22 +1,42 @@
 import os
-import requests
+import time
+from playwright.sync_api import sync_playwright
 
-# بەستەری ئەو فایلەی دەتوێت دایبەزێنیت
-URL = "https://example.com/file-to-download.zip"
-SAVE_PATH = "downloaded_file.zip"
+USERNAME = os.environ.get("PELLA_USERNAME")
+PASSWORD = os.environ.get("PELLA_PASSWORD")
+PANEL_URL = "https://pella.app"  # ئادڕەسی ڕاستەوخۆی پانێڵەکەت لێرە بنووسە
 
 
-def download_file():
-    print("دەستپێکردنی دابەزاندن...")
-    response = requests.get(URL, stream=True)
-    if response.status_code == 200:
-        with open(SAVE_PATH, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        print("فایلەکە بەسەرکەوتوویی دابەزی!")
-    else:
-        print(f"هەڵە ڕوویدا! کۆد: {response.status_code}")
+def restart_pella_server():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context()
+        page = context.new_page()
+
+        print("چوونە سەر ماڵپەڕ...")
+        page.goto(PANEL_URL)
+        page.wait_for_timeout(3000)
+
+        # ئەگەر لاپەڕەی Login هات، زانیارییەکان دەخاتە ناوەوە
+        if page.locator("input[name='username']").is_visible():
+            print("تۆمارکردنی چوونەژوورەوە...")
+            page.fill("input[name='username']", USERNAME)
+            page.fill("input[name='password']", PASSWORD)
+            page.click("button[type='submit']")
+            page.wait_for_timeout(4000)
+
+        # کلیک کردن لەسەر دوگمەی RESTART
+        print("گەڕان بەدوای دوگمەی RESTART...")
+        restart_button = page.locator("button:has-text('RESTART')")
+        if restart_button.is_visible():
+            restart_button.click()
+            print("دوگمەی RESTART بە سەرکەوتوویی داگیرا!")
+            page.wait_for_timeout(3000)
+        else:
+            print("دوگمەی RESTART نەدۆزرایەوە!")
+
+        browser.close()
 
 
 if __name__ == "__main__":
-    download_file()
+    restart_pella_server()
