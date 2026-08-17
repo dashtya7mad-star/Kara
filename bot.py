@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 
 USERNAME = os.environ.get("PELLA_USERNAME")
 PASSWORD = os.environ.get("PELLA_PASSWORD")
-PANEL_URL = "https://pella.app"  # ئادڕەسی ڕاستەوخۆی پانێڵەکەت لێرە بنووسە
+PANEL_URL = "https://www.pella.app/server/e6cf31aac4184a6487363aa3fc790e27"  # ئادڕەسی ڕاستەوخۆی پانێڵەکەت لێرە بنووسە
 
 
 def restart_pella_server():
